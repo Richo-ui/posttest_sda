@@ -8,8 +8,8 @@ void tukar(int &a, int &b) {
 }
 
 int main() {
-    int x = 5, y = 9;
-    cout << "Sebelum ditukar: x=" << x << " y=" << y << endl;
-    tukar(x,y);
-    cout << "Sesudah ditukar: x=" << x << " y=" << y << endl;
+    int a = 5, b = 9;
+    cout << "Sebelum ditukar: a=" << a << " b=" << b << endl;
+    tukar(a,b);
+    cout << "Sesudah ditukar: a=" << a << " b=" << b << endl;
 }
