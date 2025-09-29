@@ -14,6 +14,7 @@ struct Maskapai {
 struct Node {
     Maskapai data;
     Node* next;
+    Node* prev;
 };
 
 
@@ -36,7 +37,9 @@ string generateKode() {
         counterKode++;
         return base;
     } else {
-        return base + "-" + to_string(counterKode++);
+        string kode = base + "-" + to_string(counterKode);
+        counterKode++;
+        return kode;
     }
 }
 
@@ -47,11 +50,13 @@ void tambahJadwal(string tujuan, string status) {
     newNode->data.tujuan = tujuan;
     newNode->data.status = status;
     newNode->next = nullptr;
+    newNode->prev = nullptr;
 
     if (head == nullptr) {
         head = tail = newNode;
     } else {
         tail->next = newNode;
+        newNode->prev = tail;
         tail = newNode;
     }
     cout << "Jadwal berhasil ditambahkan!\n";
@@ -65,6 +70,7 @@ void sisipJadwal(string tujuan, string status) {
     newNode->data.tujuan = tujuan;
     newNode->data.status = status;
     newNode->next = nullptr;
+    newNode->prev = nullptr;
 
     if (head == nullptr) {
         head = tail = newNode;
@@ -79,16 +85,16 @@ void sisipJadwal(string tujuan, string status) {
         count++;
     }
 
-    if (temp == nullptr) {
+    if (temp == nullptr || temp->next == nullptr) {
         cout << "Posisi lebih besar dari jumlah node, jadwal ditambahkan di akhir\n";
         tail->next = newNode;
+        newNode->prev = tail;
         tail = newNode;
     } else {
         newNode->next = temp->next;
+        newNode->prev = temp;
+        temp->next->prev = newNode;
         temp->next = newNode;
-        if (newNode->next == nullptr) {
-            tail = newNode;
-        }
     }
     cout << "Jadwal berhasil disisipkan di posisi ke-" << posisi << "!\n";
 }
@@ -101,10 +107,9 @@ void hapusAwal() {
     }
     Node* temp = head;
     head = head->next;
+    if (head != nullptr) head->prev = nullptr;
+    else tail = nullptr;
     delete temp;
-    if (head == nullptr) {
-        tail = nullptr;
-    }
     cout << "Jadwal paling awal berhasil dihapus\n";
 }
 
@@ -130,26 +135,46 @@ void tampilkan() {
         cout << "Tidak ada jadwal penerbangan\n";
         return;
     }
+
+    cout << "\nDaftar Jadwal Penerbangan (dari depan):\n";
+    cout << "+------------------------------------------------------------+\n";
+    cout << "|" << setw(12) << "Kode" << setw(20) << "Tujuan" << setw(25) << "Status" << " |\n";
+    cout << "+------------------------------------------------------------+\n";
+
     Node* temp = head;
-    cout << "\nDaftar Jadwal Penerbangan:\n";
-    cout << "------------------------------------------------------------\n";
     while (temp != nullptr) {
-        cout << "Kode   : " << temp->data.kodePenerbangan << endl;
-        cout << "Tujuan : " << temp->data.tujuan << endl;
-        cout << "Status : " << temp->data.status << endl;
-        cout << "------------------------------------------------------------\n";
+        cout << "|" << setw(12) << temp->data.kodePenerbangan << setw(20) << temp->data.tujuan << setw(25) << temp->data.status << " |\n";
         temp = temp->next;
     }
+    cout << "+------------------------------------------------------------+\n";
 }
 
+void tampilkanBelakang() {
+    if (tail == nullptr) {
+        cout << "Tidak ada jadwal penerbangan.\n";
+        return;
+    }
+
+    cout << "\nDaftar Jadwal Penerbangan (dari belakang):\n";
+    cout << "+------------------------------------------------------------+\n";
+    cout << "|" << setw(12) << "Kode" << setw(20) << "Tujuan" << setw(25) << "Status" << " |\n";
+    cout << "+------------------------------------------------------------+\n";
+
+    Node* temp = tail;
+    while (temp != nullptr) {
+        cout << "|" << setw(12) << temp->data.kodePenerbangan << setw(20) << temp->data.tujuan << setw(25) << temp->data.status << " |\n";
+        temp = temp->prev;
+    }
+    cout << "+------------------------------------------------------------+\n";
+}
 
 int main() {
     int pilihan;
     string tujuan, status, kode;
 
-    tambahJadwal("Jakarta", "Tepat Waktu");
-    tambahJadwal("Surabaya", "Terlambat");
-    tambahJadwal("Medan", "Naik Pesawat");
+    tambahJadwal("Jakarta", "On Boarding");
+    tambahJadwal("Surabaya", "Delayed");
+    tambahJadwal("Medan", "Departed");
 
     do {
         header();
@@ -157,7 +182,8 @@ int main() {
         cout << "| 2. Sisipkan Jadwal Penerbangan                             |\n";
         cout << "| 3. Hapus Jadwal Paling Awal                                |\n";
         cout << "| 4. Update Status Penerbangan                               |\n";
-        cout << "| 5. Tampilkan Semua Jadwal                                  |\n";
+        cout << "| 5. Tampilkan Semua Jadwal dari depan                       |\n";
+        cout << "| 6. Tampilkan Semua Jadwal dari belakang                    |\n";
         cout << "| 0. Keluar                                                  |\n";
         cout << "+------------------------------------------------------------+\n";
         cout << "Pilih menu: ";
@@ -191,6 +217,9 @@ int main() {
                 break;
             case 5:
                 tampilkan();
+                break;
+            case 6:
+                tampilkanBelakang();
                 break;
             case 0:
                 cout << "Terima kasih!\n";
